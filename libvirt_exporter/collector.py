@@ -27,20 +27,23 @@ def parse_blk(stat):
         return []
     blk_stat = []
     for i in range(int(stat['block.count'])):
+        print("IIIIIIIIII, ", i)
+        if stat['block.%s.name' %i] == 'hda':
+            continue
         current_stat = {
-            'name': stat['block.' + str(i) + '.name'],
-            'path': stat['block.' + str(i) + '.path'],
-            'allocation': stat['block.' + str(i) + '.allocation'],
-            'capacity': stat['block.' + str(i) + '.capacity'],
-            'physical': stat['block.' + str(i) + '.physical'],
-            'read_requests': stat['block.' + str(i) + '.rd.reqs'],
-            'read_bytes': stat['block.' + str(i) + '.rd.bytes'],
-            'read_seconds': stat['block.' + str(i) + '.rd.times'],
-            'write_requests': stat['block.' + str(i) + '.wr.reqs'],
-            'write_bytes': stat['block.' + str(i) + '.wr.bytes'],
-            'write_seconds': stat['block.' + str(i) + '.wr.times'],
-            'flush_requests': stat['block.' + str(i) + '.fl.reqs'],
-            'flush_seconds': stat['block.' + str(i) + '.fl.times']
+            'name': stat.get('block.' + str(i) + '.name', ''),
+            'path': stat.get('block.' + str(i) + '.path', ''),
+            'allocation': stat.get('block.' + str(i) + '.allocation', ''),
+            'capacity': stat.get('block.' + str(i) + '.capacity', ''),
+            'physical': stat.get('block.' + str(i) + '.physical', ''),
+            'read_requests': stat.get('block.' + str(i) + '.rd.reqs', ''),
+            'read_bytes': stat.get('block.' + str(i) + '.rd.bytes', ''),
+            'read_seconds': stat.get('block.' + str(i) + '.rd.times', ''),
+            'write_requests': stat.get('block.' + str(i) + '.wr.reqs', ''),
+            'write_bytes': stat.get('block.' + str(i) + '.wr.bytes', ''),
+            'write_seconds': stat.get('block.' + str(i) + '.wr.times', ''),
+            'flush_requests': stat.get('block.' + str(i) + '.fl.reqs', ''),
+            'flush_seconds': stat.get('block.' + str(i) + '.fl.times', '')
         }
         blk_stat.append(current_stat)
     return blk_stat
@@ -54,6 +57,7 @@ class LibvirtCollector(object):
 
     def collect(self):
         stats = self.conn.getAllDomainStats()
+        print("AFAFASF", stats)
         state = GaugeMetricFamily(
             'lvirt_domain_info_state',
             'Current state for the domain.',

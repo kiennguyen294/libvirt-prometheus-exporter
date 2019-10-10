@@ -9,7 +9,7 @@ def main():
     p = configargparse.ArgParser(add_config_file_help=False,
                                  auto_env_var_prefix='LIBVIRT_EXPORTER_'
                                  )
-    p.add('--uri', required=True,
+    p.add('--uri', required=False, default='qemu:///system',
           help='libvirt connection string (i.e. qemu:///system)')
     p.add('--port',
           help='port where the exporter will listen (default: 9233)',
@@ -18,6 +18,7 @@ def main():
           help='address where the exporter will listen (default: 0.0.0.0 )',
           default='0.0.0.0')
     options = p.parse_args()
+    print("ADFAFDA", options)
     REGISTRY.register(LibvirtCollector(options.uri))
     start_http_server(int(options.port), addr=options.host)
     while (True):
