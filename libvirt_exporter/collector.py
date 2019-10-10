@@ -78,7 +78,19 @@ class LibvirtCollector(object):
             'lvirt_domain_info_memory_usage_bytes',
             'Memory usage of the domain, in bytes.',
             labels=['name', 'id'])
-
+        mem_available = GaugeMetricFamily(
+            'lvirt_domain_info_memory_available_byte',
+            'Memory available of the domain in byte',
+            labels=['name', 'id'])
+        mem_unused = GaugeMetricFamily(
+            'lvirt_domain_info_memory_unused_byte',
+            'Memory unused of the domain in byte',
+            labels=['name', 'id'])
+        mem_in_used = GaugeMetricFamily(
+	        'lvirt_domain_mem_in_use_byte',
+	        'Memory in used of domain in byte',
+	        labels=['name', 'id']
+        )
         net_receive_bytes = GaugeMetricFamily(
             'lvirt_domain_interface_stats_receive_bytes_total',
             'Number of bytes received on a network interface, in bytes.',
@@ -154,6 +166,13 @@ class LibvirtCollector(object):
             if stat['state.state'] == 1:
                 cpu_time.add_metric(base_label, stat['cpu.time'])
                 mem_curr.add_metric(base_label, stat['balloon.current'])
+                mem_available.add_metric(base_label, stat['balloon.available'])
+                mem_unused.add_metric(base_label, stat['balloon.unused'])
+                if 'usable' in domain.memoryStats() and 'available' in domain.memoryStats():
+                    mem_in_used.add_metric(base_label, stat['balloon.available'] - stat['balloon.usable'])
+                elif 'unused' in domain.memoryStats() and 'available' in domain.memoryStats():
+                    mem_in_used.add_metric(base_label, stat['balloon.available'] - stat['balloon.unused'])
+
 
             for net in parse_net(stat):
                 net_label = [domain.name(), domain.UUIDString(), net['name']]
@@ -183,6 +202,9 @@ class LibvirtCollector(object):
         yield cpu_time
         yield mem_max
         yield mem_curr
+        yield mem_available
+        yield mem_unused
+        yield mem_in_used
         yield net_receive_bytes
         yield net_receive_packets
         yield net_receive_errors
