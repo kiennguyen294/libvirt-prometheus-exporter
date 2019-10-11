@@ -27,7 +27,6 @@ def parse_blk(stat):
         return []
     blk_stat = []
     for i in range(int(stat['block.count'])):
-        print("IIIIIIIIII, ", i)
         if stat['block.%s.name' %i] == 'hda':
             continue
         current_stat = {
@@ -75,7 +74,7 @@ class LibvirtCollector(object):
             'Maximum allowed memory of the domain, in bytes.',
             labels=['name', 'id'])
         mem_curr = GaugeMetricFamily(
-            'lvirt_domain_info_memory_usage_bytes',
+            'lvirt_domain_info_memory_current_bytes',
             'Memory usage of the domain, in bytes.',
             labels=['name', 'id'])
         mem_available = GaugeMetricFamily(
@@ -86,6 +85,11 @@ class LibvirtCollector(object):
             'lvirt_domain_info_memory_unused_byte',
             'Memory unused of the domain in byte',
             labels=['name', 'id'])
+        mem_usable = GaugeMetricFamily(
+            'lvirt_domain_info_memory_usable_byte',
+            'Memory usable of the domain in byte',
+            labels=['name', 'id']
+        )
         mem_in_used = GaugeMetricFamily(
 	        'lvirt_domain_mem_in_use_byte',
 	        'Memory in used of domain in byte',
@@ -158,6 +162,7 @@ class LibvirtCollector(object):
             labels=['name', 'id', 'device', 'path'])
 
         for domain, stat in stats:
+
             base_label = [domain.name(), domain.UUIDString()]
             state.add_metric(base_label, stat['state.state'])
             vcpus.add_metric(base_label, stat['vcpu.current'])
@@ -166,13 +171,16 @@ class LibvirtCollector(object):
             if stat['state.state'] == 1:
                 cpu_time.add_metric(base_label, stat['cpu.time'])
                 mem_curr.add_metric(base_label, stat['balloon.current'])
-                mem_available.add_metric(base_label, stat['balloon.available'])
-                mem_unused.add_metric(base_label, stat['balloon.unused'])
-                if 'usable' in domain.memoryStats() and 'available' in domain.memoryStats():
-                    mem_in_used.add_metric(base_label, stat['balloon.available'] - stat['balloon.usable'])
-                elif 'unused' in domain.memoryStats() and 'available' in domain.memoryStats():
-                    mem_in_used.add_metric(base_label, stat['balloon.available'] - stat['balloon.unused'])
 
+                if 'usable' in domain.memoryStats() and 'available' in domain.memoryStats():
+                    mem_available.add_metric(base_label, stat['balloon.available'])
+                    mem_usable.add_metric(base_label, stat['balloon.usable'])
+                    mem_in_used.add_metric(base_label, stat['balloon.available'] - stat['balloon.usable'])
+
+                elif 'unused' in domain.memoryStats() and 'available' in domain.memoryStats():
+                    mem_available.add_metric(base_label, stat['balloon.available'])
+                    mem_unused.add_metric(base_label, stat['balloon.unused'])
+                    mem_in_used.add_metric(base_label, stat['balloon.available'] - stat['balloon.unused'])
 
             for net in parse_net(stat):
                 net_label = [domain.name(), domain.UUIDString(), net['name']]
