@@ -1,5 +1,6 @@
 import libvirt
 from prometheus_client.core import GaugeMetricFamily
+import six
 
 
 def parse_net(stat):
@@ -166,10 +167,24 @@ class LibvirtCollector(object):
             base_label = [domain.name(), domain.UUIDString()]
             state.add_metric(base_label, stat['state.state'])
             vcpus.add_metric(base_label, stat['vcpu.current'])
+
+            current_cpus = stat.get('vcpu.current')
+
             mem_max.add_metric(base_label, stat['balloon.maximum'])
 
             if stat['state.state'] == 1:
-                cpu_time.add_metric(base_label, stat['cpu.time'])
+                cpu_time_tmp = 0
+                for vcpu in six.moves.range(stat['vcpu.maximum']):
+                    try:
+                        cpu_time_tmp += (stat.get('vcpu.%s.time' % vcpu) +
+                                     stat.get('vcpu.%s.wait' % vcpu))
+                        current_cpus -= 1
+                    except TypeError:
+                        pass
+                if current_cpus:
+                    cpu_time_tmp = stat.get('cpu.time')
+
+                cpu_time.add_metric(base_label, cpu_time_tmp)
                 mem_curr.add_metric(base_label, stat['balloon.current'])
 
                 if 'usable' in domain.memoryStats() and 'available' in domain.memoryStats():
