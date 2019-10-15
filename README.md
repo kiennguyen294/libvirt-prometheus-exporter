@@ -1,0 +1,2 @@
+collect RAM use
+lvirt_domain_mem_in_use_byte/(lvirt_domain_info_memory_available_byte)*100
