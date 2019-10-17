@@ -22,4 +22,4 @@ def main():
     REGISTRY.register(LibvirtCollector(options.uri))
     start_http_server(int(options.port), addr=options.host)
     while (True):
-        time.sleep(10000)
+        time.sleep(6000000)

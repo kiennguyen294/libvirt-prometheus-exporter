@@ -57,7 +57,6 @@ class LibvirtCollector(object):
 
     def collect(self):
         stats = self.conn.getAllDomainStats()
-        print("AFAFASF", stats)
         state = GaugeMetricFamily(
             'lvirt_domain_info_state',
             'Current state for the domain.',
@@ -163,7 +162,8 @@ class LibvirtCollector(object):
             labels=['name', 'id', 'device', 'path'])
 
         for domain, stat in stats:
-
+           # if domain.UUIDString() != '09a15ea6-9909-41fc-9943-5f99da4b33f7':
+           #     continue
             base_label = [domain.name(), domain.UUIDString()]
             state.add_metric(base_label, stat['state.state'])
             vcpus.add_metric(base_label, stat['vcpu.current'])
@@ -183,6 +183,7 @@ class LibvirtCollector(object):
                         pass
                 if current_cpus:
                     cpu_time_tmp = stat.get('cpu.time')
+                cpu_time_tmp = cpu_time_tmp / (1000000000 * stat['vcpu.maximum']) # 1000000000 is 1GHz, cp_time is clock rate
 
                 cpu_time.add_metric(base_label, cpu_time_tmp)
                 mem_curr.add_metric(base_label, stat['balloon.current'])
