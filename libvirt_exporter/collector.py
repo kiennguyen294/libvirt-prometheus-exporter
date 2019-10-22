@@ -1,3 +1,5 @@
+import sys
+
 import libvirt
 from prometheus_client.core import GaugeMetricFamily
 import six
@@ -52,8 +54,15 @@ def parse_blk(stat):
 class LibvirtCollector(object):
 
     def __init__(self, uri):
+        conn = libvirt.open(uri)
+
+        if conn is None:
+            print('Failed to open connection to ' + uri, file = sys.stderr)
+        else:
+            print('Successfully connected to ' + uri)
+
         self.uri = uri
-        self.conn = libvirt.openReadOnly(uri)
+        self.conn = conn
 
     def collect(self):
         stats = self.conn.getAllDomainStats()
