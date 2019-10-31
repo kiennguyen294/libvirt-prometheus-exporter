@@ -18,7 +18,6 @@ def main():
           help='address where the exporter will listen (default: 0.0.0.0 )',
           default='0.0.0.0')
     options = p.parse_args()
-    print("ADFAFDA", options)
     REGISTRY.register(LibvirtCollector(options.uri))
     start_http_server(int(options.port), addr=options.host)
     while (True):

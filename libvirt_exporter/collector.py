@@ -57,7 +57,7 @@ class LibvirtCollector(object):
         conn = libvirt.open(uri)
 
         if conn is None:
-            print('Failed to open connection to ' + uri, file = sys.stderr)
+            print('Failed to open connection to %s'  %(uri + sys.stderr))
         else:
             print('Successfully connected to ' + uri)
 
@@ -171,8 +171,6 @@ class LibvirtCollector(object):
             labels=['name', 'id', 'device', 'path'])
 
         for domain, stat in stats:
-           # if domain.UUIDString() != '09a15ea6-9909-41fc-9943-5f99da4b33f7':
-           #     continue
             base_label = [domain.name(), domain.UUIDString()]
             state.add_metric(base_label, stat['state.state'])
             vcpus.add_metric(base_label, stat['vcpu.current'])
