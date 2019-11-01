@@ -169,6 +169,10 @@ class LibvirtCollector(object):
             'lvirt_domain_block_stats_flush_seconds_total',
             'Amount of time spent flushing of a block device, in seconds.',
             labels=['name', 'id', 'device', 'path'])
+        blk_capacity = GaugeMetricFamily(
+            'lvirt_domain_block_stats_capacity_disk',
+            'Size of Disk',
+            labels=['name', 'id', 'device', 'path'])
 
         for domain, stat in stats:
             base_label = [domain.name(), domain.UUIDString()]
@@ -227,6 +231,7 @@ class LibvirtCollector(object):
                 blk_write_seconds.add_metric(blk_label, blk['write_seconds'])
                 blk_flush_requests.add_metric(blk_label, blk['flush_requests'])
                 blk_flush_seconds.add_metric(blk_label, blk['flush_seconds'])
+                blk_capacity.add_metric(blk_label, blk['capacity']/(1024**3)) # convert capacity to GB
 
         yield state
         yield vcpus
@@ -252,3 +257,4 @@ class LibvirtCollector(object):
         yield blk_write_bytes
         yield blk_flush_requests
         yield blk_flush_seconds
+        yield blk_capacity
