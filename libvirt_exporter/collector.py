@@ -11,15 +11,15 @@ def parse_net(stat):
     net_stat = []
     for i in range(int(stat['net.count'])):
         current_stat = {
-            'name': stat['net.' + str(i) + '.name'],
-            'rx_bytes': stat['net.' + str(i) + '.rx.bytes'],
-            'rx_pkts': stat['net.' + str(i) + '.rx.pkts'],
-            'rx_errors': stat['net.' + str(i) + '.rx.errs'],
-            'rx_drops': stat['net.' + str(i) + '.rx.drop'],
-            'tx_bytes': stat['net.' + str(i) + '.tx.bytes'],
-            'tx_pkts': stat['net.' + str(i) + '.tx.pkts'],
-            'tx_errors': stat['net.' + str(i) + '.tx.errs'],
-            'tx_drops': stat['net.' + str(i) + '.tx.drop']
+            'name': stat.get('net.' + str(i) + '.name'),
+            'rx_bytes': stat.get('net.' + str(i) + '.rx.bytes'),
+            'rx_pkts': stat.get('net.' + str(i) + '.rx.pkts'),
+            'rx_errors': stat.get('net.' + str(i) + '.rx.errs'),
+            'rx_drops': stat.get('net.' + str(i) + '.rx.drop'),
+            'tx_bytes': stat.get('net.' + str(i) + '.tx.bytes'),
+            'tx_pkts': stat.get('net.' + str(i) + '.tx.pkts'),
+            'tx_errors': stat.get('net.' + str(i) + '.tx.errs'),
+            'tx_drops': stat.get('net.' + str(i) + '.tx.drop')
         }
         net_stat.append(current_stat)
     return net_stat
