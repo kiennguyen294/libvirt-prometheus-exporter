@@ -1,0 +1,6 @@
+pyinstaller==3.4.0
+flake8==3.7.8
+pytest==4.6.6
+libvirt-python==5.6.0
+prometheus-client==0.7.1
+ConfigArgParse==0.14.0
